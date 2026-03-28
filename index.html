@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ykchhiragg </title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.ui.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/controls.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --blue:#0062ff;
+    --radius:20px;
+}
+
+body {
+    font-family:'Outfit',sans-serif;
+    background:#f1f5f9;
+    margin:0;
+    padding:15px;
+}
+
+/* HEADER */
+.box-header{
+    background:var(--blue);
+    color:#fff;
+    padding:16px;
+    border-radius:var(--radius);
+    text-align:center;
+    margin-bottom:15px;
+}
+.box-header h1{
+    font-size:1.4rem;
+    font-weight:800;
+}
+
+/* PLAYER */
+.player-box{
+    aspect-ratio:16/9;
+    background:#000;
+    border-radius:var(--radius);
+    border:4px solid var(--blue);
+    overflow:hidden;
+}
+video{width:100%;height:100%;}
+
+/* CARDS */
+.info-card{
+    background:var(--blue);
+    color:#fff;
+    padding:25px 20px;
+    border-radius:var(--radius);
+    text-align:center;
+    margin-top:15px;
+}
+.info-card h2{
+    font-size:1.2rem;
+    margin-bottom:15px;
+}
+
+/* TELEGRAM BUTTON */
+.btn-outline{
+    border:2px solid #fff;
+    padding:12px;
+    border-radius:50px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-decoration:none;
+    color:#fff;
+    font-weight:600;
+}
+
+/* SHARE BUTTON */
+.btn-white{
+    background:#fff;
+    color:var(--blue);
+    border:none;
+    padding:15px;
+    border-radius:12px;
+    font-weight:800;
+    width:100%;
+}
+
+/* LOADER */
+#loader{
+    position:fixed;
+    inset:0;
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:999;
+}
+
+/* 🔥 CENTER POPUP */
+#centerPopup {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.popup-box {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    width: 85%;
+    max-width: 320px;
+}
+
+.popup-box h2 {
+    color: var(--blue);
+    margin-bottom: 10px;
+}
+
+.popup-box p {
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* POPUP BUTTONS */
+.popup-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.join-btn {
+    background: var(--blue);
+    color: white;
+}
+
+.joined-btn {
+    background: #eee;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loader">Loading...</div>
+
+<!-- 🔥 CENTER TELEGRAM POPUP -->
+<div id="centerPopup">
+    <div class="popup-box">
+        <h2>ykchhiragg</h2>
+        <p>Join Telegram for live updates 🚀</p>
+
+        <a href="https://t.me/one8archives" target="_blank" class="popup-btn join-btn">
+            Join Telegram
+        </a>
+
+        <button onclick="closePopup()" class="popup-btn joined-btn">
+            Already Joined
+        </button>
+    </div>
+</div>
+
+<header class="box-header">
+    <h1 id="stream-name">ykchhiragg </h1>
+</header>
+
+<div class="player-box" data-shaka-player-container>
+    <video id="video" autoplay playsinline data-shaka-player></video>
+</div>
+
+<!-- TELEGRAM CARD -->
+<section class="info-card">
+    <h2>Join our community for live updates!</h2>
+    <a href="https://t.me/one8archives" target="_blank" class="btn-outline">
+        <i class="fa-brands fa-telegram"></i>
+        Telegram
+    </a>
+</section>
+
+<!-- SHARE CARD -->
+<section class="info-card">
+    <h2>Copy Link & Open In Chrome Browser Only</h2>
+    <button class="btn-white" onclick="shareLink(this)">
+        Share This Page Link
+    </button>
+</section>
+
+<script>
+document.addEventListener('shaka-ui-loaded', init);
+
+/* SHOW POPUP */
+function showPopup() {
+    document.getElementById("centerPopup").style.display = "flex";
+}
+
+/* CLOSE POPUP */
+function closePopup() {
+    document.getElementById("centerPopup").style.display = "none";
+}
+
+async function init() {
+    const video = document.getElementById('video');
+    const ui = video['ui'];
+    if (!ui) { setTimeout(init, 100); return; }
+
+    const player = ui.getControls().getPlayer();
+
+    try {
+        const res = await fetch('https://raw.githubusercontent.com/Ajayone8x/Alive/refs/heads/main/streams.json');
+        const list = await res.json();
+        const id = new URLSearchParams(window.location.search).get('id');
+        const channel = list[id];
+
+        if (channel) {
+            document.getElementById('stream-name').innerText =
+                "ykchhiragg - " + channel.name;
+
+            if (channel.keyId) {
+                player.configure({
+                    drm:{ clearKeys:{ [channel.keyId]:channel.key }}
+                });
+            }
+
+            await player.load(channel.mpd || channel.url);
+
+            document.getElementById('loader').style.display='none';
+
+            // 🔥 SHOW CENTER POPUP
+            showPopup();
+        }
+    } catch(e){ console.error(e); }
+}
+
+/* SHARE */
+function shareLink(btn){
+    navigator.clipboard.writeText(window.location.href);
+
+    let original = btn.innerText;
+    btn.innerText = "Link Copied!";
+    setTimeout(()=> btn.innerText = original,2000);
+}
+</script>
+
+</body>
+</html>
